@@ -3,100 +3,70 @@ import './App.css'
 
 class App extends Component {
   state = {
-    totalCartCount: 0,
-
     restaurantName: '',
     menuCategories: [],
     activeCategory: '',
     dishes: [],
-    dishQuantities: {},
+    cartCount: {},
   }
 
   componentDidMount() {
-    this.getFetchedData()
+    this.getResults()
   }
 
-  getFetchedData = async () => {
+  handleCategoryClick(category) {
+    this.setState({
+      activeCategory: category.menu_category,
+      dishes: category.category_dishes,
+    })
+  }
+
+  handleAddToCart(dishId) {
+    this.setState(prevState => ({
+      cartCount: {
+        ...prevState.cartCount,
+        [dishId]: prevState.cartCount[dishId] + 1,
+      },
+    }))
+  }
+
+  handleRemoveFromCart(dishId) {
+    const {cartCount} = this.state
+    if (cartCount[dishId] > 0) {
+      this.setState(prevState => ({
+        cartCount: {
+          ...prevState.cartCount,
+          [dishId]: prevState.cartCount[dishId] - 1,
+        },
+      }))
+    }
+  }
+
+  getResults = async () => {
     const url = 'https://run.mocky.io/v3/77a7e71b-804a-4fbd-822c-3e365d3482cc'
     const options = {
       method: 'GET',
     }
     const response = await fetch(url, options)
     const data = await response.json()
-    const updatedData = {
-      restName: data[0].restaurant_name,
-      menuCart: data[0].table_menu_list,
-    }
-    this.updatingData(updatedData)
-  }
 
-  updatingData = ({restName, menuCart}) => {
     this.setState({
-      restaurantName: restName,
-      menuCategories: menuCart,
+      restaurantName: data[0].restaurant_name,
+      menuCategories: data[0].table_menu_list,
+      activeCategory: data[0].table_menu_list[0].menu_category,
+      dishes: data[0].table_menu_list[0].category_dishes,
     })
+    this.initializeCart(data[0].table_menu_list)
   }
 
-  handleCategoryChange = category => {
-    const {menuCategories} = this.state
-    const selectedCategory = menuCategories.find(c => c === category)
-    this.setState({
-      activeCategory: selectedCategory,
-      dishes: selectedCategory.category_dishes || [],
+  initializeCart(categories) {
+    const initialCart = {}
+    categories.forEach(category => {
+      category.category_dishes.forEach(dish => {
+        initialCart[dish.dish_id] = 0
+      })
     })
-  }
-
-  handleIncrement = dish => {
-    this.setState(prevState => {
-      const updatedDishQuantities = {
-        ...prevState.dishQuantities,
-        [dish.dish_name]: (prevState.dishQuantities[dish.dish_name] || 0) + 1,
-      }
-
-      const totalCount = Object.values(updatedDishQuantities).reduce(
-        (total, quantity) => total + quantity,
-        0,
-      )
-
-      return {
-        dishQuantities: updatedDishQuantities,
-        totalCartCount: totalCount,
-      }
-    })
-  }
-
-  handleDecrement = dish => {
-    this.setState(prevState => {
-      const currentQuantity = prevState.dishQuantities[dish.dish_name] || 0
-
-      if (currentQuantity > 0) {
-        const updatedDishQuantities = {
-          ...prevState.dishQuantities,
-          [dish.dish_name]: currentQuantity - 1,
-        }
-
-        const totalCount = Object.values(updatedDishQuantities).reduce(
-          (total, quantity) => total + quantity,
-          0,
-        )
-
-        return {
-          dishQuantities: updatedDishQuantities,
-          totalCartCount: totalCount,
-        }
-      }
-
-      return null
-    })
-  }
-
-  updateDishQuantity = (dish, quantity) => {
-    this.setState(prevState => ({
-      dishQuantities: {
-        ...prevState.dishQuantities,
-        [dish.dish_name]: quantity,
-      },
-    }))
+    this.setState({cartCount: {...initialCart}})
   }
 
   render() {
@@ -105,64 +75,79 @@ class App extends Component {
       menuCategories,
       activeCategory,
       dishes,
-      dishQuantities,
-      totalCartCount,
+      cartCount,
     } = this.state
 
     return (
-      <div>
-        <header className="main-container">
-          <div className="top-order">
-            <h1>{restaurantName}</h1>
-            <p>My Orders</p>
-            <p>Cart Count {totalCartCount}</p>
-          </div>
-          <div>
-            {menuCategories.map(category => (
-              <button
-                type="button"
-                key={category.menu_category_id}
-                onClick={() => this.handleCategoryChange(category)}
-                className={activeCategory === category ? 'active' : ''}
-              >
-                {category.menu_category}
-              </button>
-            ))}
+      <div className="restaurant-app">
+        <header className="header">
+          <h1 className="header-h1">{restaurantName}</h1>
+          <div className="cart-container">
+            <p className="header-p">My Orders</p>
+            <div className="cart-icon">
+              🛒 {Object.values(cartCount).reduce((a, b) => a + b, 0)}
+            </div>
           </div>
         </header>
-        <main className="dish-container">
-          {dishes.map(dish => (
-            <div className="dish-description-container" key={dish.dish_name}>
-              <div className="dish-description">
-                <h3>{dish.dish_name}</h3>
-                <p>{`${dish.dish_currency} ${dish.dish_price}`}</p>
-                <p>{dish.dish_description}</p>
-                {dish.dish_Availability === false && <p>Not available</p>}
+        <div>
+          {menuCategories.map(category => (
+            <button
+              type="button"
+              key={category.menu_category}
+              className={
+                category.menu_category === activeCategory ? 'active' : ''
+              }
+              onClick={() => this.handleCategoryClick(category)}
+            >
+              {category.menu_category}
+            </button>
+          ))}
+        </div>
 
-                {dish.dish_Availability !== false && (
+        <main className="main">
+          {dishes.map(dish => (
+            <div key={dish.dish_id} className="dish-container">
+              <div className="dish-item">
+                <h2>{dish.dish_name}</h2>
+                <p>
+                  {dish.dish_currency} {dish.dish_price}
+                </p>
+                <p>{dish.dish_description}</p>
+                {dish.dish_available === false && (
+                  <p className="not-available">Not available</p>
+                )}
+                {dish.dish_available !== false && (
                   <div>
                     <button
-                      className="button"
                       type="button"
-                      onClick={() => this.handleDecrement(dish)}
-                    >
-                      -
-                    </button>
-                    <span>{dishQuantities[dish.dish_name] || 0}</span>
-                    <button
                       className="button"
-                      type="button"
-                      onClick={() => this.handleIncrement(dish)}
+                      onClick={() => this.handleAddToCart(dish.dish_id)}
                     >
                       +
                     </button>
-                    {dish.addonCat && <p>Customizations available</p>}
+                    <span>{cartCount[dish.dish_id]}</span>
+                    <button
+                      type="button"
+                      className="button"
+                      onClick={() => this.handleRemoveFromCart(dish.dish_id)}
+                    >
+                      -
+                    </button>
                   </div>
                 )}
-
-                <p>{`Calories: ${dish.dish_calories}`}</p>
+                {activeCategory === 'Fast Food' && dish.addonCat && (
+                  <p className="customizations">Customizations available</p>
+                )}
+                {activeCategory === 'Biryani' && !dish.dish_Availability && (
+                  <p className="not-available">Not available</p>
+                )}
+              </div>
+              <div>
+                <p>{dish.dish_calories} Calories</p>
+              </div>
+              <div>
                 <img
-                  className="image-edit"
+                  className="image"
                   src={dish.dish_image}
                   alt={dish.dish_name}
                 />

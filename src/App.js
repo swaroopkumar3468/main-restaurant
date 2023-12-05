@@ -7,7 +7,7 @@ class App extends Component {
     menuCategories: [],
     activeCategory: '',
     dishes: [],
-    cartCount: {},
+    cartCount: 0,
   }
 
   componentDidMount() {
@@ -31,15 +31,16 @@ class App extends Component {
   }
 
   handleRemoveFromCart(dishId) {
-    const {cartCount} = this.state
-    if (cartCount[dishId] > 0) {
-      this.setState(prevState => ({
-        cartCount: {
-          ...prevState.cartCount,
-          [dishId]: prevState.cartCount[dishId] - 1,
-        },
-      }))
-    }
+    this.setState(prevState => {
+      const newCartCount = {
+        ...prevState.cartCount,
+        [dishId]: Math.max(0, prevState.cartCount[dishId] - 1),
+      }
+
+      return {
+        cartCount: newCartCount,
+      }
+    })
   }
 
   getResults = async () => {
@@ -85,7 +86,8 @@ class App extends Component {
           <div className="cart-container">
             <p className="header-p">My Orders</p>
             <div className="cart-icon">
-              🛒 {Object.values(cartCount).reduce((a, b) => a + b, 0)}
+              🛒{}
+              <p>{Object.values(cartCount).reduce((a, b) => a + b, 0)}</p>
             </div>
           </div>
         </header>
@@ -116,7 +118,11 @@ class App extends Component {
                 {dish.dish_available === false && (
                   <p className="not-available">Not available</p>
                 )}
-                {dish.dish_available !== false && (
+
+                {activeCategory === 'Biryani' && !dish.dish_Availability && (
+                  <p className="not-available">Not available</p>
+                )}
+                {activeCategory === 'Biryani' && dish.dish_Availability && (
                   <div>
                     <button
                       type="button"
@@ -135,11 +141,133 @@ class App extends Component {
                     </button>
                   </div>
                 )}
-                {activeCategory === 'Fast Food' && dish.addonCat && (
-                  <p className="customizations">Customizations available</p>
-                )}
-                {activeCategory === 'Biryani' && !dish.dish_Availability && (
+                {activeCategory === 'Salads and Soup' &&
+                  !dish.dish_Availability && (
+                    <p className="not-available">Not available</p>
+                  )}
+
+                {activeCategory === 'Salads and Soup' &&
+                  dish.dish_Availability && (
+                    <div>
+                      <p className="not-available">Customizations available</p>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => this.handleAddToCart(dish.dish_id)}
+                      >
+                        +
+                      </button>
+                      <span>{cartCount[dish.dish_id]}</span>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => this.handleRemoveFromCart(dish.dish_id)}
+                      >
+                        -
+                      </button>
+                    </div>
+                  )}
+                {activeCategory === 'From The Barnyard' &&
+                  !dish.dish_Availability && (
+                    <p className="not-available">Not available</p>
+                  )}
+
+                {activeCategory === 'From The Barnyard' &&
+                  dish.dish_Availability && (
+                    <div>
+                      <p className="not-available">Customizations available</p>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => this.handleAddToCart(dish.dish_id)}
+                      >
+                        +
+                      </button>
+                      <span>{cartCount[dish.dish_id]}</span>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => this.handleRemoveFromCart(dish.dish_id)}
+                      >
+                        -
+                      </button>
+                    </div>
+                  )}
+                {activeCategory === 'From the Hen House' &&
+                  !dish.dish_Availability && (
+                    <p className="not-available">Not available</p>
+                  )}
+                {activeCategory === 'From the Hen House' &&
+                  dish.dish_Availability && (
+                    <div>
+                      <p className="not-available">Customizations available</p>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => this.handleAddToCart(dish.dish_id)}
+                      >
+                        +
+                      </button>
+                      <span>{cartCount[dish.dish_id]}</span>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => this.handleRemoveFromCart(dish.dish_id)}
+                      >
+                        -
+                      </button>
+                    </div>
+                  )}
+                {activeCategory === 'Fresh From The Sea' &&
+                  !dish.dish_Availability && (
+                    <p className="not-available">Not available</p>
+                  )}
+                {activeCategory === 'Fresh From The Sea' &&
+                  dish.dish_Availability && (
+                    <div>
+                      <p className="not-available">Customizations available</p>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => this.handleAddToCart(dish.dish_id)}
+                      >
+                        +
+                      </button>
+                      <span>{cartCount[dish.dish_id]}</span>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => this.handleRemoveFromCart(dish.dish_id)}
+                      >
+                        -
+                      </button>
+                    </div>
+                  )}
+                {activeCategory === 'Fast Food' && !dish.dish_Availability && (
                   <p className="not-available">Not available</p>
+                )}
+                {activeCategory === 'Fast Food' && dish.dish_Availability && (
+                  <div>
+                    <p key={dish.addonCat} className="not-available">
+                      Customizations available
+                    </p>
+                    <button
+                      key={dish.addonCat}
+                      type="button"
+                      className="button"
+                      onClick={() => this.handleAddToCart(dish.dish_id)}
+                    >
+                      +
+                    </button>
+                    <span>{cartCount[dish.dish_id]}</span>
+                    <button
+                      type="button"
+                      className="button"
+                      onClick={() => this.handleRemoveFromCart(dish.dish_id)}
+                    >
+                      -
+                    </button>
+                  </div>
                 )}
               </div>
               <div>

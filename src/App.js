@@ -131,7 +131,7 @@ class App extends Component {
                     >
                       +
                     </button>
-                    <span>{cartCount[dish.dish_id]}</span>
+                    <p>{cartCount[dish.dish_id]}</p>
                     <button
                       type="button"
                       className="button"
@@ -157,7 +157,7 @@ class App extends Component {
                       >
                         +
                       </button>
-                      <span>{cartCount[dish.dish_id]}</span>
+                      <p>{cartCount[dish.dish_id]}</p>
                       <button
                         type="button"
                         className="button"
@@ -183,7 +183,7 @@ class App extends Component {
                       >
                         +
                       </button>
-                      <span>{cartCount[dish.dish_id]}</span>
+                      <p>{cartCount[dish.dish_id]}</p>
                       <button
                         type="button"
                         className="button"
@@ -208,7 +208,7 @@ class App extends Component {
                       >
                         +
                       </button>
-                      <span>{cartCount[dish.dish_id]}</span>
+                      <p>{cartCount[dish.dish_id]}</p>
                       <button
                         type="button"
                         className="button"
@@ -233,7 +233,7 @@ class App extends Component {
                       >
                         +
                       </button>
-                      <span>{cartCount[dish.dish_id]}</span>
+                      <p>{cartCount[dish.dish_id]}</p>
                       <button
                         type="button"
                         className="button"
@@ -246,11 +246,9 @@ class App extends Component {
                 {activeCategory === 'Fast Food' && !dish.dish_Availability && (
                   <p className="not-available">Not available</p>
                 )}
-                {activeCategory === 'Fast Food' && dish.dish_Availability && (
+                {activeCategory === 'Fast Food' && dish.addonCat.addons && (
                   <div>
-                    <p key={dish.addonCat} className="not-available">
-                      Customizations available
-                    </p>
+                    <p className="not-available"> Customizations available</p>
                     <button
                       key={dish.addonCat}
                       type="button"
@@ -259,7 +257,7 @@ class App extends Component {
                     >
                       +
                     </button>
-                    <span>{cartCount[dish.dish_id]}</span>
+                    <p>{cartCount[dish.dish_id]}</p>
                     <button
                       type="button"
                       className="button"

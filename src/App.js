@@ -1,13 +1,18 @@
+
 import {Component} from 'react'
+
+import Loader from 'react-loader-spinner'
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css' // Import the styles
 import './App.css'
 
 class App extends Component {
   state = {
+    loading: true,
     restaurantName: '',
     menuCategories: [],
     activeCategory: '',
     dishes: [],
-    cartCount: 0,
+    cartCount: {},
   }
 
   componentDidMount() {
@@ -57,6 +62,8 @@ class App extends Component {
       activeCategory: data[0].table_menu_list[0].menu_category,
       dishes: data[0].table_menu_list[0].category_dishes,
     })
+
+    this.setState({loading: false})
     this.initializeCart(data[0].table_menu_list)
   }
 
@@ -72,12 +79,21 @@ class App extends Component {
 
   render() {
     const {
+      loading,
       restaurantName,
       menuCategories,
       activeCategory,
       dishes,
       cartCount,
     } = this.state
+
+    if (loading) {
+      return (
+        <div className="loader-container">
+          <Loader type="ThreeDots" color="#0b69ff" height="50" width="50" />
+        </div>
+      )
+    }
 
     return (
       <div className="restaurant-app">
@@ -246,7 +262,7 @@ class App extends Component {
                 {activeCategory === 'Fast Food' && !dish.dish_Availability && (
                   <p className="not-available">Not available</p>
                 )}
-                {activeCategory === 'Fast Food' && dish.addonCat.addons && (
+                {activeCategory === 'Fast Food' && dish.addonCat.length > 0 && (
                   <div>
                     <p className="not-available"> Customizations available</p>
                     <button
@@ -287,3 +303,4 @@ class App extends Component {
 }
 
 export default App
+
